@@ -1,31 +1,74 @@
 package View
 
+import Controller.NonogramFieldClick
 import Model.Nonogram
 import javafx.application.Application
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
+import javafx.geometry.Pos
 import javafx.scene.Scene
+import javafx.scene.control.*
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Pane
+import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import javafx.scene.shape.Rectangle
+import javafx.scene.text.Font
+import javafx.stage.FileChooser
 import javafx.stage.Stage
+import java.io.File
+import java.nio.file.Files
 import kotlin.math.max
-import javafx.scene.shape.*
-import javafx.scene.paint.Paint
-import javafx.scene.text.*
-import Controller.NonogramFieldClick
-import javafx.geometry.Pos
-import javafx.scene.control.ContentDisplay
-import javafx.scene.control.Label
 
 
 class MainWindow : Application() {
 
-    private var current_nonogram: Nonogram = Model.Nonogram.generateNonogram();
-    private var pane: Pane = Pane();
+    private var current_nonogram: Nonogram = Model.Nonogram.generateNonogram()
+    private var pane: Pane = Pane()
+    private var menuBox: VBox = VBox()
+    private var menuBar = MenuBar()
 
 
     override fun start(stage: Stage) {
 
         show_nonogram(pane,current_nonogram)
+
+        val fileChooser = FileChooser()
+        val menu1 : Menu = Menu("Fajlovi")
+        val menuItem1 : MenuItem = MenuItem("Učitaj nonogram iz .txt fajla")
+        menuItem1.onAction = EventHandler { e: ActionEvent? ->
+
+            //TBD
+
+            /*val selectedFile = fileChooser.showOpenDialog(stage)
+            if(selectedFile!=null && selectedFile.isFile && (selectedFile.name.endsWith(".txt"))) {
+                Files.copy(selectedFile.toPath(), File("images/" + selectedFile.name).toPath());
+            }*/
+        }
+        val menuItem2 : MenuItem = MenuItem("Sačuvaj sliku u bazi")
+        menuItem2.onAction = EventHandler { e: ActionEvent? ->
+            val selectedFile = fileChooser.showOpenDialog(stage)
+            if(selectedFile!=null && selectedFile.isFile && (selectedFile.name.endsWith(".jpg") ||
+                        selectedFile.name.endsWith(".jpeg") ||
+                        selectedFile.name.endsWith(".png"))) {
+                Files.copy(selectedFile.toPath(), File("images/" + selectedFile.name).toPath());
+            }
+        }
+
+        val menuItem3 : MenuItem = MenuItem("Generiši nasumični nonogram iz baze")
+        menuItem3.onAction = EventHandler { e: ActionEvent? ->
+            this.showNewNonogram()
+        }
+
+
+
+        menu1.items.addAll(menuItem1,menuItem2,menuItem3)
+
+        menuBar = MenuBar()
+
+        menuBar.getMenus().add(menu1)
+
+        pane.children.add(menuBar)
 
         val scene=Scene(pane,1200.0,750.0)
         stage.scene = scene
@@ -40,9 +83,15 @@ class MainWindow : Application() {
         return current_nonogram
     }
 
-    public fun refreshNonogram() {
+    fun showNewNonogram() {
+        current_nonogram = Model.Nonogram.generateNonogram()
+        refreshNonogram()
+    }
+
+    fun refreshNonogram() {
         pane.children.clear()
         show_nonogram(pane,current_nonogram)
+        pane.children.add(menuBar)
     }
 
     fun show_nonogram(pane: Pane, nonogram: Nonogram) {

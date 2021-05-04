@@ -114,6 +114,7 @@ class PictureGenerator {
                 }
             }
 
+
             val image : BufferedImage = ImageIO.read(imageFile)
             val w : Int = image.width
             val h : Int = image.height
@@ -145,14 +146,16 @@ class PictureGenerator {
 
             var nono: Nonogram = Nonogram(n,m,usloviVrsta,usloviKolona)
 
-            /* Debug
+            /*
+            //Za debug:
             for(i in 0..(n-1)) {
                 for(j in 0..(m-1)) {
                     nono.setNonogram(i,j,nonogram!![i][j])
                 }
             }
+            */
 
-             */
+
 
             return nono
         }

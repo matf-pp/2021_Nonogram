@@ -694,7 +694,7 @@ class Nonogram() {
             var m = n
             val dtsz : Int = PictureGenerator.getPictureCount()
             var ind = Random.nextInt(dtsz)
-            return PictureGenerator.generateNonogramFromPicture(ind,n*5,m*5)
+            return PictureGenerator.generateNonogramFromPicture(ind,30,30)
 
             //return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
         }
