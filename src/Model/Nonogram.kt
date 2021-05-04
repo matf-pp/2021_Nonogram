@@ -1,6 +1,7 @@
 package Model
 
 import Model.intersect
+import kotlin.random.Random
 
 class Nonogram() {
 
@@ -689,8 +690,13 @@ class Nonogram() {
 
     companion object {
         fun generateNonogram() : Nonogram {
-            //loading Nonograms from database tbd;
-            return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
+            var n: Int = Random.nextInt(6) + 1
+            var m = n
+            val dtsz : Int = PictureGenerator.getPictureCount()
+            var ind = Random.nextInt(dtsz)
+            return PictureGenerator.generateNonogramFromPicture(ind,n*5,m*5)
+
+            //return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
         }
     }
 
