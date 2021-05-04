@@ -13,3 +13,24 @@ fun intersect(lista1 : Array<Triple<Int, Int, Boolean>>, lista2: Array<Triple<In
     }
     return ret_val;
 }
+
+
+fun extremePoints(leftExtreme: Int, rightExtreme: Int, filledPoint: Int, ruleLength: Int) : List<Int> {
+    val ret_val = emptyList<Int>().toMutableList()
+
+    if(leftExtreme >= filledPoint || filledPoint >= rightExtreme) return ret_val
+
+    if(filledPoint - leftExtreme < ruleLength) {
+        for(j in 1..ruleLength - (filledPoint - leftExtreme)) {
+            ret_val.add(j+filledPoint)
+        }
+    }
+
+    if(rightExtreme - filledPoint < ruleLength) {
+        for(j in 1..ruleLength - (rightExtreme - filledPoint)) {
+            ret_val.add(filledPoint-j)
+        }
+    }
+
+    return ret_val
+}

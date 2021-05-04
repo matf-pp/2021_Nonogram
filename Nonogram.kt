@@ -1,3 +1,4 @@
+import sample.extremePoints
 import sample.intersect
 
 class Nonogram() {
@@ -141,72 +142,6 @@ class Nonogram() {
         return Pair(-1, -1);
     }
 
-   fun checkRow(vrsta: Int) : Boolean {
-       var brojac = 0;
-       var currentUslov: Int = 0;
-
-       if(usloviVrsta.isNullOrEmpty()) return true;
-
-       for (i in 1..this.getM()) {
-           if(this.isFilled(vrsta, i-1)) {
-               brojac++;
-           }
-           else if(!this.isFilled(vrsta, i-1) && brojac!=0) {
-               if(usloviVrsta!![vrsta][currentUslov].first == brojac) {
-                   currentUslov++;
-                   brojac = 0;
-               }
-               else return false;
-           }
-       }
-
-       if(currentUslov < usloviVrsta!![vrsta].size && usloviVrsta!![vrsta][currentUslov].first != brojac)
-           return false
-
-       return true;
-   }
-
-    fun checkColumn(kolona: Int) : Boolean {
-        var brojac = 0;
-        var currentUslov: Int = 0;
-
-        if(usloviVrsta.isNullOrEmpty()) return true;
-
-        for (i in 1..this.getM()) {
-            if(this.isFilled(i-1, kolona)) {
-                brojac++;
-            }
-            else if(this.isEmpty(i-1, kolona) && brojac!=0) {
-                if(usloviKolona!![kolona][currentUslov].first == brojac) {
-                    currentUslov++;
-                    brojac = 0;
-                }
-                else return false;
-            }
-        }
-
-        if(currentUslov < usloviKolona!![kolona].size && usloviKolona!![kolona][currentUslov].first != brojac)
-            return false
-
-        return true;
-    }
-
-    fun check(): Boolean {
-        for (i in 1..n) {
-            if(!this.checkRow(i-1)) {
-                println("Zeza vrsta".plus(i-1));
-                return false
-            };
-        }
-        for (i in 1..m) {
-            if(!this.checkColumn(i-1)) {
-                println("Zeza kolona".plus(i-1))
-                return false
-            };
-        }
-        return true;
-    }
-
     // metod koji brise tabelu
     fun clearNonogram() {
         for (i in 1..n) {
@@ -216,40 +151,228 @@ class Nonogram() {
         }
     }
 
-    fun isRowFinished(vrsta: Int): Boolean {
-        for (i in 1..m) {
-            if(!this.isFilled(vrsta, i-1) && !this.isEmpty(vrsta, i-1))
-                return false
+    //sada pisem metode koji proveravaju da li je ispunjen neki od uslova sa leve ili desne strane niza uslova
+    // osnovna ideja - ako su ispunjeni svi prethodni uslovi i ako postoji blok duzine sledeceg uslova
+    // takav da je izmedju najekstremnijeg polja tog bloka i najlevljeg 0 polja posle odredjenog broja polja
+    // manji od duzine bloka, onda je taj deo uslova ispunjen
+
+
+    fun checkRowsLeft(){
+        var uslov: Int
+        var d: Int
+        var leftestFilled: Int
+        var len: Int
+        var leftestEmpty: Int
+
+        for(i in 0..n-1) {
+            d = 0
+            uslov = -1
+            len = 0
+
+            // potrebno je naci prvi uslov koji nije popunjen sa leve strane
+
+            for(j in 0..usloviVrsta!![i].size-1) {
+                if(!usloviVrsta!![i][j].second) {
+                    uslov = j
+                    break
+                }
+                else {
+                    // racunamo koliku su duzinu popunjeni zauzeli
+                    // to je leftestFilled posle d + duzina uslova + 1
+                    // zbog numeracije od leftestFilled, nemamo +1
+                    d = this.findLeftestFilled(i, d).second + usloviVrsta!![i][j].first
+                }
+            }
+            if(uslov == -1) continue
+
+            // a ako postoji neispunjem uslov, onda je potrebno proveriti da li je sada ispunjen
+            leftestFilled = this.findLeftestFilled(i, d).second
+            if(leftestFilled == -1) continue
+            for(j in 0..m-1) {
+                if (leftestFilled + j < m && this.isFilled(i, leftestFilled + j)) len++
+                else break
+            }
+
+            if(len == usloviVrsta!![i][uslov].first) {
+                leftestEmpty = this.findLeftestEmpty(i, d).second
+                if(leftestEmpty == -1) leftestEmpty = d
+                if(leftestEmpty < leftestFilled) leftestEmpty = d
+                if(leftestFilled - leftestEmpty <= len) {
+                    usloviVrsta!![i][uslov] = Pair(usloviVrsta!![i][uslov].first, true)
+                    if(leftestFilled + usloviVrsta!![i][uslov].first < m) this.setNonogram(i, leftestFilled + usloviVrsta!![i][uslov].first, 0)
+                }
+            }
+
         }
-        return true
     }
 
-    fun isColumnFinished(kolona: Int): Boolean {
-        for (i in 1..m) {
-            if(!this.isFilled(i-1, kolona) && !this.isEmpty(i-1, kolona))
-                return false
+    fun checkRowsRight() {
+        var uslov: Int
+        var d: Int
+        var rightestFilled: Int
+        var len: Int
+        var rightestEmpty: Int
+
+        for(i in 0..n-1) {
+            d = 0
+            uslov = -1
+            len = 1
+
+            // potrebno je naci prvi uslov koji nije popunjen sa leve strane
+
+            for(j in 0..usloviVrsta!![i].size-1) {
+                if(!usloviVrsta!![i][usloviVrsta!![i].size-j-1].second) {
+                    uslov = usloviVrsta!![i].size - j-1
+                    break;
+                }
+                else {
+                    // racunamo koliku su duzinu popunjeni zauzeli
+                    // to je m - rightestFilled + duzina uslova + 1
+                    // zbog numeracije, nemamo +1
+                    d = m - this.findRightestFilled(i, d).second + usloviVrsta!![i][usloviVrsta!![i].size-j-1].first
+                }
+            }
+            if(uslov == -1) continue
+
+            // a ako postoji neispunjem uslov, onda je potrebno proveriti da li je sada ispunjen
+            rightestFilled = this.findRightestFilled(i, d).second
+            if(rightestFilled == -1) continue
+            for(j in 1..m-1) {
+                if(rightestFilled - j >= 0 && this.isFilled(i, rightestFilled - j)) len++
+                else break
+            }
+
+
+            if(len == usloviVrsta!![i][uslov].first) {
+                rightestEmpty = this.findRightestEmpty(i, d).second
+                if(rightestEmpty == -1) rightestEmpty = m-d-1
+                if(rightestEmpty < rightestFilled) rightestEmpty = m-d-1
+                if(rightestEmpty - rightestFilled <= len && rightestFilled < rightestEmpty) {
+                    usloviVrsta!![i][uslov] = Pair(usloviVrsta!![i][uslov].first, true)
+                    if (rightestFilled - usloviVrsta!![i][uslov].first > 0) this.setNonogram(i, rightestFilled - usloviVrsta!![i][uslov].first, 0)
+                }
+            }
+
         }
-        return true;
     }
 
-    fun finisheddRows() : List<Int> {
-        val ret_val : MutableList<Int> = emptyList<Int>().toMutableList();
-        for (i in 1..n) {
-            if(this.isRowFinished(i-1))
-                ret_val.add(i-1);
+    // za kolone!!!!
+
+    fun checkColumnsTop(){
+        var uslov: Int
+        var d: Int
+        var topFilled: Int
+        var len: Int
+        var topEmpty: Int
+
+        for(i in 0..m-1) {
+            d = 0
+            uslov = -1
+            len = 0
+
+            // potrebno je naci prvi uslov koji nije popunjen sa leve strane
+
+            for(j in 0..usloviKolona!![i].size-1) {
+                if(!usloviKolona!![i][j].second) {
+                    uslov = j
+                    break
+                }
+                else {
+                    // racunamo koliku su duzinu popunjeni zauzeli
+                    // to je leftestFilled posle d + duzina uslova + 1
+                    // zbog numeracije od leftestFilled, nemamo +1
+                    d = this.findTopFilled(i, d).first + usloviKolona!![i][j].first
+                }
+            }
+            if(uslov == -1) continue
+
+            // a ako postoji neispunjem uslov, onda je potrebno proveriti da li je sada ispunjen
+            topFilled = this.findTopFilled(i, d).first
+            if(topFilled == -1) continue
+            for(j in 0..n-1) {
+                if(topFilled + j < n && this.isFilled(topFilled+j, i)) len++
+                else break
+            }
+
+
+            if(len == usloviKolona!![i][uslov].first) {
+                topEmpty = this.findTopEmpty(i, d).first
+                if(topEmpty == -1) topEmpty = d
+                if(topEmpty < topFilled) topEmpty = d
+                if(topFilled - topEmpty <= len) {
+                    usloviKolona!![i][uslov] = Pair(usloviKolona!![i][uslov].first, true)
+                    if(topFilled + usloviKolona!![i][uslov].first < m) this.setNonogram(topFilled + usloviKolona!![i][uslov].first, i,0)
+                }
+            }
+
         }
-        return ret_val;
     }
 
-    fun filledColumns() : List<Int> {
-        val ret_val : MutableList<Int> = emptyList<Int>().toMutableList();
-        for (i in 1..m) {
-            if(this.isColumnFinished(i-1));
-            ret_val.add(i-1)
+    fun checkColumnsBottom() {
+        var uslov: Int
+        var d: Int
+        var bottomFilled: Int
+        var len: Int
+        var bottomEmpty: Int
+
+        for(i in 0..m-1) {
+            d = 0
+            uslov = -1
+            len = 1
+
+            // potrebno je naci prvi uslov koji nije popunjen sa leve strane
+
+            for(j in 0..usloviKolona!![i].size-1) {
+                if(!usloviKolona!![i][usloviKolona!![i].size-j-1].second) {
+                    uslov = usloviKolona!![i].size - j-1
+                    break;
+                }
+                else {
+                    // racunamo koliku su duzinu popunjeni zauzeli
+                    // to je m - rightestFilled + duzina uslova + 1
+                    // zbog numeracije, nemamo +1
+                    d = n - this.findBottomFilled(i, d).first + usloviKolona!![i][usloviKolona!![i].size-j-1].first
+                }
+            }
+            if(uslov == -1) continue
+
+            // a ako postoji neispunjem uslov, onda je potrebno proveriti da li je sada ispunjen
+            bottomFilled = this.findBottomFilled(i, d).first
+            if(bottomFilled == -1) continue
+            for(j in 1..n-1) {
+                if(bottomFilled - j >= 0 && this.isFilled( bottomFilled - j, i)) len++
+                else break
+            }
+
+            if(len == usloviKolona!![i][uslov].first) {
+                bottomEmpty = this.findBottomEmpty(i, d).first
+                if(bottomEmpty == -1) bottomEmpty = n-d-1
+                if(bottomEmpty < bottomFilled) bottomEmpty = n-d-1
+                if(bottomEmpty - bottomFilled <= len && bottomFilled < bottomEmpty) {
+                    usloviKolona!![i][uslov] = Pair(usloviKolona!![i][uslov].first, true)
+                    if (bottomFilled - usloviKolona!![i][uslov].first > 0) this.setNonogram(bottomFilled - usloviKolona!![i][uslov].first, i,0)
+                }
+            }
+
         }
-        return ret_val;
     }
 
+
+    // naredna dva metoda postavljaju false na drugu poziciju uslova
+
+    fun setUsloviVrstaFalse() {
+        for(i in 0..n-1) {
+            for(j in 0..usloviVrsta!![i].size-1)
+                usloviVrsta!![i][j] = Pair(usloviVrsta!![i][j].first, false)
+        }
+    }
+
+    fun setUsloviKolonaFalse() {
+        for(i in 0..m-1) {
+            for(j in 0..usloviKolona!![i].size-1)
+                usloviKolona!![i][j] = Pair(usloviKolona!![i][j].first, false)
+        }
+    }
 
     // sada pisemo metode pravila
 
@@ -345,286 +468,229 @@ class Nonogram() {
         return ret_val;
     }
 
-    fun vrstaPravilo2() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+    // pravilo 2 funkcionise ovako:
+    // nadji najlevlji dostupni uslov (onaj koji sigurno nije ostvaren)
+    // nadji najelvlju popunjenu poziciju
+    // nadji najlevlju praznu poziciju posle duzine koju zaklapaju popunjeni uslovi (pre tog uslova)
+    // nadji najelvju praznu poziciju posle najlevlje popunjene
+    // ako je distanca izmedju leve prazne i leve popunjene manja od duzine dostupnog uslova
+    // onda se moze dopuniti sa desne strane
+    // slicno i sa desne strane
 
-        for(i in 0..n-1) {
-            val l = this.findLeftestFilled(i, 0).second;
-            val x = usloviVrsta!![i][0].first;
+    fun vrstaPravilo2() : List<Triple<Int, Int, Boolean>> {
+        val ret_val = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
 
-            if (l == -1) return ret_val;
+        var uslov: Int
+        var d: Int
+        var leftestFilled: Int
+        var len: Int
+        var leftestEmpty: Int
+        var rightEmpty: Int
 
-            // ako je l < x, onda su popunjena i polja od l do x-1
-            if(l < x-1 && l!=-1) {
-                for(j in l+1..x-1)
-                    ret_val.add(Triple(i, j, true));
+        for (i in 0..n-1) {
+            d = 0
+            uslov = -1
+            len = 0
+
+            // potrebno je naci prvi uslov koji nije popunjen sa leve strane
+
+            for (j in 0..usloviVrsta!![i].size - 1) {
+                if (!usloviVrsta!![i][j].second) {
+                    uslov = j
+                    break
+                } else {
+                    d = this.findLeftestFilled(i, d).second + usloviVrsta!![i][j].first
+                }
+            }
+
+            if(uslov == -1) continue
+
+            leftestFilled = this.findLeftestFilled(i, d).second
+
+            if(leftestFilled == -1) continue
+
+            leftestEmpty = this.findLeftestEmpty(i, d).second
+
+            rightEmpty = this.findLeftestEmpty(i, leftestFilled).second;
+
+            if(leftestEmpty == -1) leftestEmpty = d
+            // ako nema praznog polja posle, cinimo samo da ne utice
+            if(rightEmpty == -1) rightEmpty = leftestFilled + usloviVrsta!![i][uslov].first + 1
+
+            if(leftestEmpty > leftestFilled) leftestEmpty = d
+
+//            if(leftestFilled - leftestEmpty < usloviVrsta!![i][uslov].first) {
+//                for(j in 1..usloviVrsta!![i][uslov].first-(leftestFilled-leftestEmpty)-1) {
+//                    if(leftestFilled + j < m) ret_val.add(Triple(i, leftestFilled + j, true))
+//                }
+//            }
+//
+//
+//            if(rightEmpty - leftestEmpty < usloviVrsta!![i][uslov].first) {
+//                for(j in 1..usloviVrsta!![i][uslov].first-(rightEmpty-leftestFilled)-1) {
+//                    if(leftestFilled - j >= 0) ret_val.add(Triple(i, leftestFilled - j, true))
+//                }
+//            }
+//
+//        }
+
+            val extreme = extremePoints(leftestEmpty, leftestFilled, rightEmpty, usloviVrsta!![i][uslov].first)
+
+            for(x in extreme) {
+                if(0 <= x && x < m)
+                    ret_val.add(Triple(i, x, true))
             }
         }
-        return ret_val;
+
+        return ret_val
     }
 
-    fun kolonaPravilo2() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
 
-        for(i in 0..m-1) {
-            val t = this.findTopFilled(i, 0).first;
-            val x = usloviKolona!![i][0].first;
+    fun kolonaPravilo2() : List<Triple<Int, Int, Boolean>> {
+        val ret_val = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
 
-            if (t == -1) return ret_val;
+        var uslov: Int
+        var d: Int
+        var topFilled: Int
+        var topEmpty: Int
+        var bottomEmpty: Int
 
-            // ako je t < x, onda su popunjena i polja od t do x-t
-            if(t < x-1 && t!=-1) {
-                for(j in t+1..x-1)
-                    ret_val.add(Triple(j, i, true));
+        for (i in 0..m-1) {
+            d = 0
+            uslov = -1
+
+            // potrebno je naci prvi uslov koji nije popunjen sa leve strane
+
+            for (j in 0..usloviKolona!![i].size - 1) {
+                if (!usloviKolona!![i][j].second) {
+                    uslov = j
+                    break
+                } else {
+                    d = this.findTopFilled(i, d).first + usloviKolona!![i][j].first
+                }
+            }
+
+            if(uslov == -1) continue
+
+            topFilled = this.findTopFilled(i, d).first
+
+            if(topFilled == -1) continue
+
+            topEmpty = this.findTopEmpty(i, d).first
+
+            bottomEmpty = this.findTopEmpty(i, topFilled).first
+
+            if(topEmpty == -1) topEmpty = d
+            // ako nema praznog polja posle, cinimo samo da ne utice
+            if(bottomEmpty == -1) bottomEmpty = topFilled + usloviKolona!![i][uslov].first + 1
+
+            if(topEmpty > topFilled) topEmpty = d
+
+            val extreme = extremePoints(topEmpty, topFilled, bottomEmpty, usloviKolona!![i][uslov].first)
+
+            for(x in extreme) {
+                if(0 <= x && x < n)
+                    ret_val.add(Triple(x, i, true))
             }
         }
-        return ret_val;
+
+        return ret_val
     }
+
 
     fun vrstaPravilo3() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+        val ret_val = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
 
-        for(i in 0..n-1) {
-            val r = this.findRightestFilled(i, 0).second;
-            val x = usloviVrsta!![i][usloviVrsta!![i].size-1].first;
+        var uslov: Int
+        var d: Int
+        var rightestFilled: Int
+        var rightestEmpty: Int
+        var leftEmpty: Int
 
-            if (r == -1) return ret_val;
+        for (i in 0..n - 1) {
+            d = 0
+            uslov = -1
 
-            // ako je l < x, onda su popunjena i polja od l do x-1
-            if(m-r < x-1 && r!=-1) {
-                for(j in m-x..r-1)
-                    ret_val.add(Triple(i, j, true));
+
+            for (j in 0..usloviVrsta!![i].size - 1) {
+                if (!usloviVrsta!![i][usloviVrsta!![i].size - j - 1].second) {
+                    uslov = usloviVrsta!![i].size - j - 1
+                    break;
+                } else {
+                    d = m - this.findRightestFilled(i, d).second + usloviVrsta!![i][usloviVrsta!![i].size - j - 1].first
+                }
+            }
+            if (uslov == -1) continue
+
+            rightestFilled = this.findRightestFilled(i, d).second
+            if(rightestFilled == -1) continue
+
+            rightestEmpty = this.findRightestEmpty(i, d).second
+            leftEmpty = this.findRightestEmpty(i, rightestFilled).second
+
+            if(rightestEmpty < rightestFilled || rightestEmpty == -1) rightestEmpty = m-d-1
+            if(leftEmpty == -1) leftEmpty = rightestFilled - uslov - 1
+
+            val extreme = extremePoints(leftEmpty, rightestFilled, rightestEmpty, usloviVrsta!![i][uslov].first)
+
+            for(x in extreme) {
+                if(0 <= x && x < m)
+                    ret_val.add(Triple(i, x, true))
             }
         }
-        return ret_val;
+
+        return ret_val
+
     }
 
     fun kolonaPravilo3() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+        val ret_val = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
 
-        for(i in 0..m-1) {
-            val b = this.findBottomFilled(i, 0).first;
-            val x = usloviKolona!![i][usloviKolona!![i].size-1].first;
+        var uslov: Int
+        var d: Int
+        var bottomFilled: Int
+        var bottomEmpty: Int
+        var topEmpty: Int
 
-            // ako je t < x, onda su popunjena i polja od t do x-t
-            if(n-b < x-1 && b!=-1) {
-                for(j in n-x..n-b)
-                    ret_val.add(Triple(j, i, true));
+        for (i in 0..n - 1) {
+            d = 0
+            uslov = -1
+
+
+            for (j in 0..usloviKolona!![i].size - 1) {
+                if (!usloviKolona!![i][usloviKolona!![i].size - j - 1].second) {
+                    uslov = usloviKolona!![i].size - j - 1
+                    break;
+                } else {
+                    d = m - this.findBottomFilled(i, d).first + usloviKolona!![i][usloviKolona!![i].size - j - 1].first
+                }
+            }
+            if (uslov == -1) continue
+
+            bottomFilled = this.findBottomFilled(i, d).first
+            if(bottomFilled == -1) continue
+
+            bottomEmpty = this.findBottomEmpty(i, d).first
+            topEmpty = this.findBottomEmpty(i, bottomFilled).second
+
+            if(bottomEmpty < bottomFilled || bottomEmpty == -1) bottomEmpty = m-d-1
+            if(topEmpty == -1) topEmpty = bottomFilled - uslov - 1
+
+            val extreme = extremePoints(topEmpty, bottomFilled, bottomEmpty, usloviKolona!![i][uslov].first)
+
+            for(x in extreme) {
+                if(0 <= x && x < m)
+                    ret_val.add(Triple(x, i, true))
             }
         }
-        return ret_val;
+
+        return ret_val
+
     }
+
 
 
     fun vrstaPravilo4() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val: MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
-
-        var brojac: Int
-        var suma: Int
-        var blok: Int
-        var uslov1 : Int
-        var l: Int
-        var le: Int
-        var re : Int
-
-        for (i in 0..n-1) {
-            brojac = 0
-            suma = 0
-            for (j in 0..usloviVrsta!![i].size - 1) {
-                if (!usloviVrsta!![i][j].second)
-                    break
-                else {
-                    blok = this.findLeftestFilled(i, suma).second
-                    suma = usloviVrsta!![i][j].first + blok + 1;
-                    brojac++
-                }
-            }
-
-            if (brojac != usloviVrsta!![i].size) {
-                uslov1 = usloviVrsta!![i][brojac].first
-                l = this.findLeftestFilled(i, suma).second
-                if(l == -1) continue
-
-                le = this.findLeftestEmpty(i, suma).second
-                re = this.findLeftestEmpty(i, l).second
-
-                if(le == -1) le = suma
-
-                if(re ==-1) re = le+uslov1
-
-                if (l-le < uslov1 - 1 && le < l && l != -1) {
-                    for (j in l+1..uslov1+le-1) {
-                        ret_val.add(Triple(i, j, true))
-                    }
-                }
-
-                if(re-l < uslov1 && l < re && l != -1) {
-                    for(j in re-uslov1+1..l-1) {
-                        ret_val.add(Triple(i, j, true))
-                    }
-                }
-            }
-        }
-
-        return ret_val;
-    }
-
-    fun kolonaPravilo4() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val: MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
-
-        var brojac: Int
-        var suma: Int
-        var blok: Int
-        var uslov1 : Int
-        var t: Int
-        var te: Int
-        var be: Int
-
-        for (i in 0..m-1) {
-            brojac = 0
-            suma = 0
-            for (j in 0..usloviKolona!![i].size - 1) {
-                if (!usloviKolona!![i][j].second)
-                    break
-                else {
-                    blok = this.findTopFilled(i, suma).first
-                    suma = usloviKolona!![i][j].first + blok + 1;
-                    brojac++
-                }
-            }
-
-            if (brojac != usloviKolona!![i].size) {
-                uslov1 = usloviKolona!![i][brojac].first
-                t = this.findTopFilled(i, suma).first
-                if(t == -1) continue
-
-                te = this.findTopEmpty(i, suma).first
-                be = this.findTopEmpty(i, t).first
-
-                if(te == -1) te = suma
-
-                if(be == -1) be = te + uslov1
-
-                if (t-te < uslov1 - 1 && t != -1) {
-                    for (j in t+1..te+uslov1-1) {
-                        ret_val.add(Triple(j, i, true))
-                    }
-                }
-                if(be-t < uslov1 && t < be && t != -1) {
-                    for(j in be-uslov1+1..t-1) {
-                        ret_val.add(Triple(j, i, true))
-                    }
-                }
-            }
-        }
-
-        return ret_val;
-
-    }
-
-
-    fun vrstaPravilo5() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val: MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
-
-        var brojac: Int
-        var suma: Int
-        var blok: Int
-        var uslov1 : Int
-        var r: Int
-        var re: Int
-        var le: Int
-
-        for (i in 0..n-1) {
-            brojac = usloviVrsta!![i].size - 1;
-            suma = 0
-            for (j in 0..usloviVrsta!![i].size - 1) {
-                if (!usloviVrsta!![i][usloviVrsta!![i].size - j - 1].second)
-                    break
-                else {
-                    blok = this.findRightestFilled(i, suma).second
-                    suma = usloviVrsta!![i][j].first + m - blok + 1;
-                    brojac--
-                }
-            }
-            if (brojac != -1) {
-                uslov1 = usloviVrsta!![i][brojac].first
-                r = this.findRightestFilled(i, suma).second
-                if(r == -1) continue
-
-                re = this.findRightestEmpty(i, suma).second
-                le = this.findRightestEmpty(i, r).second
-
-                if(re == -1) re = suma
-
-                if(le == -1) le = m-re-uslov1
-
-                if (re-r < uslov1 && r < re) {
-                    for (j in m-re-uslov1..r-1) {
-                        ret_val.add(Triple(i, j, true))
-                    }
-                }
-                if(le < r && r-le < uslov1) {
-                    for(j in r+1..le+uslov1-2)
-                        ret_val.add(Triple(i, j, true))
-                }
-            }
-        }
-
-        return ret_val;
-    }
-
-
-    fun kolonaPravilo5() : MutableList<Triple<Int, Int, Boolean>> {
-        val ret_val: MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
-
-        var brojac: Int
-        var suma: Int
-        var blok: Int
-        var uslov1 : Int
-        var b: Int
-        var be : Int
-        var te : Int
-
-        for (i in 0..m-1) {
-            brojac = usloviKolona!![i].size - 1
-            suma = 0
-            for (j in 0..usloviKolona!![i].size - 1) {
-                if (!usloviKolona!![i][usloviKolona!![i].size - j - 1].second)
-                    break
-                else {
-                    blok = this.findBottomFilled(i, suma).first
-                    suma = usloviKolona!![i][j].first + n - blok + 1;
-                    brojac--
-                }
-            }
-            if (brojac != -1) {
-                uslov1 = usloviKolona!![i][brojac].first
-                b = this.findBottomFilled(i, suma).first
-                if(b == -1) continue
-                be = this.findBottomEmpty(i, suma).first
-                te = this.findBottomEmpty(i, b).first
-
-                if(be == -1) be = suma
-
-                if(te == -1) te = n-be-uslov1
-
-                if (be-b< uslov1 && b < be) {
-                    for (j in n-be-uslov1..b-1) {
-                        ret_val.add(Triple(j, i, true))
-                    }
-                }
-
-                if(te < b && b-te < uslov1) {
-                    for(j in b+1..te+uslov1-2)
-                        ret_val.add(Triple(j, i, true))
-                }
-            }
-        }
-
-        return ret_val;
-    }
-
-    fun vrstaPravilo6() : MutableList<Triple<Int, Int, Boolean>> {
         val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
         var l : Int;
         var r : Int;
@@ -650,7 +716,7 @@ class Nonogram() {
         return ret_val
     }
 
-    fun kolonaPravilo6() : MutableList<Triple<Int, Int, Boolean>> {
+    fun kolonaPravilo4() : MutableList<Triple<Int, Int, Boolean>> {
         val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
         var l : Int;
         var r : Int;
@@ -683,6 +749,17 @@ class Nonogram() {
                     return Pair(i, j);
         }
         return Pair(-1, -1)
+    }
+
+    fun solvePrekoPravila(): MutableList<Triple<Int, Int, Boolean>> {
+       val ret_val = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+         ret_val.addAll(this.vrstaPravilo2())
+       ret_val.addAll(this.vrstaPravilo3())
+        ret_val.addAll(this.vrstaPravilo4())
+       ret_val.addAll(this.kolonaPravilo2())
+        ret_val.addAll(this.kolonaPravilo3())
+        ret_val.addAll(this.kolonaPravilo4())
+        return ret_val
     }
 
 }
