@@ -17,6 +17,7 @@ import javafx.scene.text.Font
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import java.io.File
+import java.lang.Exception
 import java.nio.file.Files
 import kotlin.math.max
 
@@ -38,12 +39,15 @@ class MainWindow : Application() {
         val menuItem1 : MenuItem = MenuItem("Učitaj nonogram iz .txt fajla")
         menuItem1.onAction = EventHandler { e: ActionEvent? ->
 
-            //TBD
-
-            /*val selectedFile = fileChooser.showOpenDialog(stage)
+            val selectedFile = fileChooser.showOpenDialog(stage)
             if(selectedFile!=null && selectedFile.isFile && (selectedFile.name.endsWith(".txt"))) {
-                Files.copy(selectedFile.toPath(), File("images/" + selectedFile.name).toPath());
-            }*/
+                try {
+                    current_nonogram = Model.TextGenerator.generateFromText(Files.readAllLines(selectedFile.toPath()))
+                    this.refreshNonogram()
+                } catch(e: Exception) {
+                    println("Fajl nije u dobrom formatu")
+                }
+            }
         }
         val menuItem2 : MenuItem = MenuItem("Sačuvaj sliku u bazi")
         menuItem2.onAction = EventHandler { e: ActionEvent? ->
