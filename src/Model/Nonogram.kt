@@ -5,6 +5,8 @@ import kotlin.random.Random
 import Model.arrayToRegex
 import Model.arrayToString
 import Model.intersect
+import kotlin.math.max
+import kotlin.math.min
 
 class Nonogram() {
 
@@ -193,116 +195,46 @@ class Nonogram() {
         return true
     }
 
-    fun isRowPlausible(i: Int) : Boolean {
-        var l : Int = usloviVrsta!![i].size
-        var pls : Array<Array<Boolean>> = Array(m){Array(l+1){false}}
+    fun alPos(n : Int, a:Array<Int>, c : Array<Int>) : Array<Array<Boolean>> {
+        val l : Int = c.size
+        var pls : Array<Array<Boolean>> = Array(n){Array(l){false}}
 
-        var oks : Boolean = true
-        for(j in 0..(m-1)) {
-            if(nonogram!![i][j]==1) oks=false
-            pls[j][0]=oks
-        }
-
-        for(k in 1..l) {
-            var d : Int = usloviVrsta!![i][k-1]
+        for(k in 0..(l-1)) {
+            val d : Int = c[k]
             var cnt : Int = 0
             var ok : Boolean = false
-            for(j in 0..(d-2)) {
-                pls[j][k] = false
-                if(nonogram!![i][j]==0) cnt++
-            }
-            for(j in (d-1)..(m-1)) {
-                if(nonogram!![i][j]==0) cnt++
 
-                if(k!=1 && j>d) {
-                    var lp: Int = j-d-1
-                    if(nonogram!![i][lp] == 1) {
-                        ok = false
-                    }
-                    ok = ok || pls[lp][k-1]
-                }
+            if(k==0) ok=true
 
-                if(cnt==0) {
-                    if(j==d-1) {
-                        pls[j][k] = k==1
-                    }
-                    else {
-                        if(k==1) {
-                            pls[j][k] = pls[j-d][0]
-                        }
-                        else {
-                            if(nonogram!![i][j-d] == 1) {
-                                pls[j][k] = false
-                            }
-                            else {
-                                pls[j][k] = ok
-                            }
-                        }
-                    }
-                }
-                else {
-                    pls[j][k]=false
-                }
-
-                if(nonogram!![i][j+1-d]==0) cnt--
-            }
-            /*println("i: " + i.toString() + ", k: " + k.toString() + ", l: " + l.toString())
-            for(j in 0..(m-1)) {
-                println(pls[j][k].toString())
-            }*/
-        }
-
-        for(ij in 1..m) {
-            var j : Int = m-ij
-            if(pls[j][l]) {
-                return true
-            }
-            if(nonogram!![i][j]==1) {
-                return false
-            }
-        }
-        return false
-    }
-
-    fun isColumnPlausible(j: Int) : Boolean {
-        var l : Int = usloviKolona!![j].size
-        var pls : Array<Array<Boolean>> = Array(n){Array(l+1){false}}
-
-        var oks : Boolean = true
-        for(i in 0..(n-1)) {
-            if(nonogram!![i][j]==1) oks=false
-            pls[i][0]=oks
-        }
-
-        for(k in 1..l) {
-            var d : Int = usloviKolona!![j][k-1]
-            var cnt : Int = 0
-            var ok : Boolean = false
             for(i in 0..(d-2)) {
                 pls[i][k] = false
-                if(nonogram!![i][j]==0) cnt++
+                if(a[i]==0) cnt++
             }
-            for(i in (d-1)..(m-1)) {
-                if(nonogram!![i][j]==0) cnt++
 
-                if(k!=1 && i>d) {
-                    var lp: Int = i-d-1
-                    if(nonogram!![lp][j] == 1) {
-                        ok = false
+            for(i in (d-1)..(n-1)) {
+                if(a[i]==0) cnt++
+
+                if(k==0) {
+                    if(cnt==0) {
+                        pls[i][k] = ok
                     }
-                    ok = ok || pls[lp][k-1]
+                    ok = ok && (a[i+1-d]!=1)
                 }
-
-                if(cnt==0) {
-                    if(i==d-1) {
-                        pls[i][k] = k==1
+                else {
+                    if(i>d) {
+                        val lp: Int = i-d-1
+                        if(a[lp] == 1) {
+                            ok = false
+                        }
+                        ok = ok || pls[lp][k-1]
                     }
-                    else {
-                        if(k==1) {
-                            pls[i][k] = pls[i-d][0]
+
+                    if(cnt==0) {
+                        if(i==d-1) {
+                            pls[i][k] = false
                         }
                         else {
-                            if(nonogram!![i-d][j] == 1) {
+                            if(a[i-d] == 1) {
                                 pls[i][k] = false
                             }
                             else {
@@ -310,60 +242,281 @@ class Nonogram() {
                             }
                         }
                     }
-                }
-                else {
-                    pls[i][k]=false
+                    else {
+                        pls[i][k]=false
+                    }
                 }
 
-                if(nonogram!![i+1-d][j]==0) cnt--
+                if(a[i+1-d]==0) cnt--
             }
 
         }
 
-        for(ii in 1..n) {
-            var i : Int = n-ii
-            if(pls[i][l]) {
-                return true
+        return pls
+    }
+
+    fun isRowPlausible(i: Int) : Pair<Boolean,Array<Triple<Int,Int,Int> > > {
+
+        val l : Int = usloviVrsta!![i].size
+
+        if(l==0) {
+            val ret : Array<Triple<Int,Int,Int> > = Array(m) {j -> Triple(i,j,0)}
+            for(j in 0..(m-1)) {
+                if(nonogram!![i][j]==1) return Pair(false,ret)
             }
-            if(nonogram!![i][j]==1) {
-                return false
+            return Pair(true,ret)
+        }
+
+        val lpos : Array<Array<Boolean> > = alPos(m,Array(m){j -> nonogram!![i][j]},Array(l){j -> usloviVrsta!![i][j]})
+        val rpos : Array<Array<Boolean> > = alPos(m,Array(m){j -> nonogram!![i][m-1-j]},Array(l){j -> usloviVrsta!![i][l-1-j]})
+
+        var alpos : Array<Array<Boolean>> = Array(l){Array(m){false}}
+
+        var ret : Array<Triple<Int,Int,Int> > = Array(m) {j -> Triple(i,j,-1)}
+
+        var ok : Boolean = false
+
+        for(k in 0..(l-1)) {
+            val d : Int = usloviVrsta!![i][k]
+            var m1 : Int = m+1
+            var m2 : Int = -1
+            for(x in (d-1)..(m-1)) {
+                if(lpos[x][k] && rpos[m-1-(x-(d-1))][l-1-k]) {
+                    alpos[k][x] = true
+                    ok = true
+                    m1 = min(m1,x)
+                    m2 = max(m2,x)
+                    //println(k.toString() + x.toString())
+                }
+            }
+            if(m2!=-1) {
+                for(x in (m2+1-d)..m1) {
+                    ret[x] = Triple(i,x,1)
+                }
             }
         }
-        return false
+
+        return Pair(ok,ret)
+    }
+
+    fun isColumnPlausible(j: Int) : Pair<Boolean,Array<Triple<Int,Int,Int> > > {
+        val l : Int = usloviKolona!![j].size
+
+        if(l==0) {
+            val ret : Array<Triple<Int,Int,Int> > = Array(n) {i -> Triple(i,j,0)}
+            for(i in 0..(n-1)) {
+                if(nonogram!![i][j]==1) return Pair(false,ret)
+            }
+            return Pair(true,ret)
+        }
+
+        val lpos : Array<Array<Boolean> > = alPos(n,Array(n){i -> nonogram!![i][j]},Array(l){i -> usloviKolona!![j][i]})
+        val rpos : Array<Array<Boolean> > = alPos(n,Array(n){i -> nonogram!![n-1-i][j]},Array(l){i -> usloviKolona!![j][l-1-i]})
+
+        var alpos : Array<Array<Boolean>> = Array(l){Array(n){false}}
+
+        var ret : Array<Triple<Int,Int,Int> > = Array(n) {i -> Triple(i,j,-1)}
+
+        var ok : Boolean = false
+
+        for(k in 0..(l-1)) {
+            val d : Int = usloviKolona!![j][k]
+            var m1 : Int = n+1
+            var m2 : Int = -1
+            for(x in (d-1)..(n-1)) {
+                if(lpos[x][k] && rpos[n-1-(x-(d-1))][l-1-k]) {
+                    alpos[k][x] = true
+                    ok = true
+                    m1 = min(m1,x)
+                    m2 = max(m2,x)
+
+                    //println(k.toString() + " " + m1.toString() + " " + m2.toString())
+                }
+            }
+            if(m2!=-1) {
+                for(x in (m2+1-d)..m1) {
+                    //println(x.toString())
+                    ret[x] = Triple(x,j,1)
+                }
+            }
+        }
+
+        return Pair(ok,ret)
     }
 
     fun recSolve(i: Int,j: Int) : Boolean {
 
-        //No rules:
+
+
+        if(i==n) return true
+
+
+        val l : Int = n-i
+
+        var fx : Array<Pair<Boolean,Array<Triple<Int,Int,Int>>>> = Array(l){Pair(true,Array(m){Triple(1,1,1)})}
+
         if(j==0) {
-            if(i!=0) {
-                if(!isRowPlausible(i-1) || !isColumnPlausible(m-1)) return false
+            fx = Array(l) {k -> isRowPlausible(i+k)}
+            for(k in 0..(l-1)) {
+                if(!fx[k].first) {
+                    return false
+                }
+            }
+
+            for(k in 0..(l-1)) {
+                for(g in 0..(m-1)) {
+                    if (fx[k].second[g].third == 1) {
+                        if (nonogram!![i+k][g] == 1) {
+                            fx[k].second[g] = Triple(i+k, g, -1)
+                        } else {
+                            setNonogram(i+k, g, 1)
+                        }
+                    }
+                }
             }
         }
-        else {
-            if(!isRowPlausible(i) || !isColumnPlausible(j-1)) return false
+
+        var next_i : Int = i
+        var next_j : Int = j+1
+        if(next_j == m) {
+            next_j = 0
+            next_i +=1
         }
 
-        //With rules:
-        /*for(k in 0..(n-1)) {
-            if(!isRowPlausible(k)) return false
-        }
-        for(k in 0..(m-1)) {
-            if(!isColumnPlausible(k)) return false
-        }*/
         /*println(i.toString() + " " + j.toString())
-        println(this.toString())*/
-        if(i>=n) return true
-        setNonogram(i,j,0)
-        var ok : Boolean = false
-        if(j==m-1) ok=recSolve(i+1,0)
-        else ok=recSolve(i,j+1)
-        if(ok) return true
-        setNonogram(i,j,1)
-        if(j==m-1) ok=recSolve(i+1,0)
-        else ok=recSolve(i,j+1)
-        if(ok) return true
-        setNonogram(i,j,-1)
+        println(this.toString())
+        println(next_i.toString() + " " + next_j.toString())*/
+
+        if(nonogram!![i][j]!=-1) {
+
+            var rret : Pair<Boolean,Array<Triple<Int,Int,Int>>> = isRowPlausible(i)
+            var cret : Pair<Boolean,Array<Triple<Int,Int,Int>>> = isColumnPlausible(j)
+
+            if(!rret.first || !cret.first) {
+                if(j==0) {
+                    for (k in 0..(l - 1)) {
+                        for (g in 0..(m - 1)) {
+                            if (fx[k].second[g].third == 1) {
+                                setNonogram(i+k, g, -1)
+                            }
+                        }
+                    }
+                }
+                return false
+            }
+            for(k in 0..(m-1)) {
+                if(rret.second[k].third == 1) {
+                    if(nonogram!![i][k] == 1) {
+                        rret.second[k] = Triple(i,k,-1)
+                    }
+                    else {
+                        setNonogram(i,k,1)
+                    }
+                }
+            }
+            for(k in 0..(n-1)) {
+                if(cret.second[k].third == 1) {
+                    if(nonogram!![k][j] == 1) {
+                        cret.second[k] = Triple(k,j,-1)
+                    }
+                    else {
+                        setNonogram(k,j,1)
+                    }
+                }
+            }
+
+            var ret : Boolean = recSolve(next_i,next_j)
+
+            if(ret) {
+                return true
+            }
+            else {
+
+                for(k in 0..(m-1)) {
+                    if(rret.second[k].third == 1) {
+                        setNonogram(i,k,-1)
+                    }
+                }
+                for(k in 0..(n-1)) {
+                    if(cret.second[k].third == 1) {
+                        setNonogram(k,j,-1)
+                    }
+                }
+                if(j==0) {
+                    for (k in 0..(l - 1)) {
+                        for (g in 0..(m - 1)) {
+                            if (fx[k].second[g].third == 1) {
+                                setNonogram(i+k, g, -1)
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        for (k in 0..1) {
+            setNonogram(i,j,k)
+
+            var rret : Pair<Boolean,Array<Triple<Int,Int,Int>>> = isRowPlausible(i)
+            var cret : Pair<Boolean,Array<Triple<Int,Int,Int>>> = isColumnPlausible(j)
+            if(rret.first && cret.first) {
+                for(g in 0..(m-1)) {
+                    if(rret.second[g].third == 1) {
+                        if(nonogram!![i][g] == 1) {
+                            rret.second[g] = Triple(i,g,-1)
+                        }
+                        else {
+                            setNonogram(i,g,1)
+                        }
+                    }
+                }
+                for(g in 0..(n-1)) {
+                    if(cret.second[g].third == 1) {
+                        if(nonogram!![g][j] == 1) {
+                            cret.second[g] = Triple(g,j,-1)
+                        }
+                        else {
+                            setNonogram(g,j,1)
+                        }
+                    }
+                }
+
+                var ret : Boolean = recSolve(next_i,next_j)
+
+                if(ret) {
+                    return true
+                }
+                else {
+
+                    for(g in 0..(m-1)) {
+                        if(rret.second[g].third == 1) {
+                            setNonogram(i,g,-1)
+                        }
+                    }
+                    for(g in 0..(n-1)) {
+                        if(cret.second[g].third == 1) {
+                            setNonogram(g,j,-1)
+                        }
+                    }
+
+                }
+            }
+
+            setNonogram(i,j,-1)
+        }
+
+        if(j==0) {
+            for (k in 0..(l - 1)) {
+                for (g in 0..(m - 1)) {
+                    if (fx[k].second[g].third == 1) {
+                        setNonogram(i+k, g, -1)
+                    }
+                }
+            }
+        }
+
         return false
     }
 
@@ -386,25 +539,48 @@ class Nonogram() {
             if (x.third != -1 && nonogram!![x.first][x.second] != 0)
                 this.setNonogram(x.first, x.second, 1)
         }
+
+        for (i in 0..(n-1)) {
+            if(usloviVrsta!![i].size==0) {
+                for (j in 0..(m-1)) {
+                    nonogram!![i][j]=0
+                }
+            }
+        }
+
+        for (j in 0..(m-1)) {
+            if(usloviKolona!![j].size==0) {
+                for (i in 0..(n-1)) {
+                    nonogram!![i][j]=0
+                }
+            }
+        }
+
         for(k in 0..(n-1)) {
-            if(!isRowPlausible(k)) return false
+            if(!isRowPlausible(k).first) return false
         }
         for(k in 0..(m-1)) {
-            if(!isColumnPlausible(k)) return false
+            if(!isColumnPlausible(k).first) return false
         }
 
         return recSolve(0,0)
     }
 
     companion object {
-        fun generateNonogram(fill : Boolean) : Nonogram {
-            var n: Int = Random.nextInt(6) + 1
+        fun generateNonogram(fill : Boolean, sz : Int) : Nonogram {
+            var n: Int = (Random.nextInt(4) + 1) * 5
             var m = n
+            if(sz != 0 ) {
+                n = sz
+                m = sz
+            }
             val dtsz : Int = PictureGenerator.getPictureCount()
             var ind = Random.nextInt(dtsz)
-            return PictureGenerator.generateNonogramFromPicture(ind,n*5,m*5, fill)
+            return PictureGenerator.generateNonogramFromPicture(ind,n,m, fill)
 
-            //return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
+        }
+        fun defaultNonogram() : Nonogram {
+            return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
         }
     }
 }
