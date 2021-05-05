@@ -4,6 +4,8 @@ import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.math.abs
+import kotlin.math.max
 
 class PictureGenerator {
     companion object {
@@ -101,7 +103,7 @@ class PictureGenerator {
 
         }
 
-        fun generateNonogramFromPicture(ind: Int,n: Int,m: Int): Nonogram {
+        fun generateNonogramFromPicture(ind: Int,n: Int,m: Int, fill : Boolean): Nonogram {
             var imageFile : File = File("images/axe.jpg")
 
             var cnt: Int = 0
@@ -121,30 +123,80 @@ class PictureGenerator {
             var nonogram : Array<Array<Int>>? = Array(n){Array(m) {-1} };
             val pw : Int = w/m
             val ph : Int = h/n
-            var threshold : Int = 255*ph*pw*3/2
-            for(i in 0..(n-1)) {
-                for(j in 0..(m-1)) {
-                    var sum : Int = 0
-                    for(k in 0..(ph-1)) {
-                        for(l in 0..(pw-1)) {
-                            val c : Color = Color(image.getRGB(j*pw+l,i*ph+k))
-                            sum = sum + c.red + c.blue + c.green
+            if(fill) {
+                var threshold: Int = 255 * ph * pw * 3 / 2
+                for (i in 0..(n - 1)) {
+                    for (j in 0..(m - 1)) {
+                        var sum: Int = 0
+                        for (k in 0..(ph - 1)) {
+                            for (l in 0..(pw - 1)) {
+                                val c: Color = Color(image.getRGB(j * pw + l, i * ph + k))
+                                sum = sum + c.red + c.blue + c.green
+                            }
+                        }
+                        //println(i.toString() + " " + j.toString() + " " + sum.toString() + " " + threshold.toString())
+                        if (sum < threshold) {
+                            nonogram!![i][j] = 1
+                        } else {
+                            nonogram!![i][j] = 0
                         }
                     }
-                    //println(i.toString() + " " + j.toString() + " " + sum.toString() + " " + threshold.toString())
-                    if(sum<threshold) {
-                        nonogram!![i][j] = 1
-                    }
-                    else {
-                        nonogram!![i][j] = 0
+                }
+                var usloviVrsta: Array<Array<Int>> = Array(n) { i -> getUslovVrste(n, m, nonogram, i) }
+
+                var usloviKolona: Array<Array<Int>> = Array(m) { i -> getUslovKolone(n, m, nonogram, i) }
+
+                var nono: Nonogram = Nonogram(n, m, usloviVrsta, usloviKolona)
+
+                return nono
+            }
+            else {
+
+                var threshold: Int = 200
+                for (i in 0..(n - 1)) {
+                    for (j in 0..(m - 1)) {
+                        var mdif: Int = 0
+                        for (k in 0..(ph - 1)) {
+                            for (l in 0..(pw - 1)) {
+                                val c: Color = Color(image.getRGB(j * pw + l, i * ph + k))
+                                for (x in (-1)..(1)) {
+                                    for (y in (-1)..(1)) {
+                                        var cx : Int = j * pw + l + x
+                                        var cy : Int = i * ph + k + y
+                                        if(0<=cx && cx<w && 0<=cy && cy<h) {
+                                            val d: Color = Color(image.getRGB(cx,cy))
+                                            mdif = max(mdif, abs(c.red-d.red)+ abs(c.blue-d.blue)+abs(c.green-d.green))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        //println(i.toString() + " " + j.toString() + " " + sum.toString() + " " + threshold.toString())
+                        if (mdif > threshold) {
+                            nonogram!![i][j] = 1
+                        } else {
+                            nonogram!![i][j] = 0
+                        }
                     }
                 }
+                var usloviVrsta: Array<Array<Int>> = Array(n) { i -> getUslovVrste(n, m, nonogram, i) }
+
+                var usloviKolona: Array<Array<Int>> = Array(m) { i -> getUslovKolone(n, m, nonogram, i) }
+
+                var nono: Nonogram = Nonogram(n, m, usloviVrsta, usloviKolona)
+
+                /*
+                //Za debug:
+                for(i in 0..(n-1)) {
+                    for(j in 0..(m-1)) {
+                        nono.setNonogram(i,j,nonogram!![i][j])
+                    }
+                }
+                */
+
+                return nono
+
             }
-            var usloviVrsta : Array<Array<Int>> = Array(n) {i -> getUslovVrste(n,m,nonogram,i)}
-
-            var usloviKolona : Array<Array<Int>> = Array(m) {i -> getUslovKolone(n,m,nonogram,i)}
-
-            var nono: Nonogram = Nonogram(n,m,usloviVrsta,usloviKolona)
 
             /*
             //Za debug:
@@ -154,10 +206,6 @@ class PictureGenerator {
                 }
             }
             */
-
-
-
-            return nono
         }
     }
 }

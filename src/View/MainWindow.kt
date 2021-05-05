@@ -6,6 +6,7 @@ import javafx.application.Application
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.geometry.Pos
+import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.layout.GridPane
@@ -15,6 +16,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Font
 import javafx.stage.FileChooser
+import javafx.stage.PopupWindow
 import javafx.stage.Stage
 import java.io.File
 import java.lang.Exception
@@ -24,13 +26,14 @@ import kotlin.math.max
 
 class MainWindow : Application() {
 
-    private var current_nonogram: Nonogram = Model.Nonogram.generateNonogram()
+    private var current_nonogram: Nonogram = Model.Nonogram.generateNonogram(true)
     private var pane: Pane = Pane()
     private var menuBox: VBox = VBox()
     private var menuBar = MenuBar()
     private var wh: Double = 0.0
     private var he: Double = 0.0
     private var solveButton: Button = Button("Reši nonogram")
+    private var tg : ToggleGroup = ToggleGroup()
     private lateinit var stg: Stage
 
 
@@ -40,6 +43,9 @@ class MainWindow : Application() {
 
         val fileChooser = FileChooser()
         val menu1 : Menu = Menu("Fajlovi")
+        val menu2 : Menu = Menu("Rešavač")
+        val menu3 : Menu = Menu("Generisanje Slika")
+
         val menuItem1 : MenuItem = MenuItem("Učitaj nonogram iz .txt fajla")
         menuItem1.onAction = EventHandler { e: ActionEvent? ->
 
@@ -68,16 +74,34 @@ class MainWindow : Application() {
             this.showNewNonogram()
         }
 
+        val checkBox : CheckMenuItem = CheckMenuItem("Nastavi započeto rešavanje nonograma")
+        checkBox.isSelected = true
+
+        val rm1 : RadioMenuItem = RadioMenuItem("Generiši punu sliku")
+        val rm2 : RadioMenuItem = RadioMenuItem("Generiši samo konturu")
+
+        rm1.isSelected = true
 
 
+        rm1.toggleGroup = tg
+        rm2.toggleGroup = tg
+
+        menu3.items.addAll(rm1,rm2)
+        menu2.items.add(checkBox)
         menu1.items.addAll(menuItem1,menuItem2,menuItem3)
 
         menuBar = MenuBar()
 
-        menuBar.getMenus().add(menu1)
+        menuBar.getMenus().addAll(menu1,menu2,menu3)
 
         solveButton.onAction = EventHandler { e: ActionEvent? ->
-            current_nonogram.solve()
+            if(!current_nonogram.solve(checkBox.isSelected)) {
+                val info : Alert = Alert(Alert.AlertType.INFORMATION)
+                info.title = "Rešavač"
+                info.headerText = "Nonogram nema rešenja"
+                info.contentText = "Ovaj nonogram nema rešenja. Pokušajte da promenite neki od zadatih uslova."
+                info.showAndWait()
+            }
             this.refreshNonogram()
         }
 
@@ -103,7 +127,12 @@ class MainWindow : Application() {
     }
 
     fun showNewNonogram() {
-        current_nonogram = Model.Nonogram.generateNonogram()
+        var fill : Boolean = true
+        var u : Toggle =  tg.selectedToggle
+        if(u is RadioMenuItem) {
+            fill = u.text.equals("Generiši punu sliku")
+        }
+        current_nonogram = Model.Nonogram.generateNonogram(fill)
         refreshNonogram()
     }
 

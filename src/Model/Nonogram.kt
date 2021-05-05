@@ -367,7 +367,15 @@ class Nonogram() {
         return false
     }
 
-    fun solve(): Boolean {
+    fun solve(cont : Boolean): Boolean {
+
+        if(!cont) {
+            for(i in 0..(n-1)) {
+                for(j in 0..(m-1)) {
+                    setNonogram(i,j,-1)
+                }
+            }
+        }
 
         val listaPopunjenihPrekoPravila = emptyList<Triple<Int, Int, Int>>().toMutableList()
 
@@ -375,7 +383,7 @@ class Nonogram() {
         listaPopunjenihPrekoPravila.addAll(this.kolonaPravilo1())
 
         for (x in listaPopunjenihPrekoPravila) {
-            if (x.third != -1)
+            if (x.third != -1 && nonogram!![x.first][x.second] != 0)
                 this.setNonogram(x.first, x.second, 1)
         }
         for(k in 0..(n-1)) {
@@ -389,12 +397,12 @@ class Nonogram() {
     }
 
     companion object {
-        fun generateNonogram() : Nonogram {
+        fun generateNonogram(fill : Boolean) : Nonogram {
             var n: Int = Random.nextInt(6) + 1
             var m = n
             val dtsz : Int = PictureGenerator.getPictureCount()
             var ind = Random.nextInt(dtsz)
-            return PictureGenerator.generateNonogramFromPicture(ind,n*5,m*5)
+            return PictureGenerator.generateNonogramFromPicture(ind,n*5,m*5, fill)
 
             //return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
         }
