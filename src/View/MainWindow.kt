@@ -144,7 +144,7 @@ class MainWindow : Application() {
                 size = 25.0
             }
             else {
-                if(n<=30 && m<=30) {
+                if(n<=35 && m<=35) {
                     size = 15.0
                 }
                 else {

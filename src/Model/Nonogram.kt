@@ -83,13 +83,13 @@ class Nonogram() {
         return nonogram!![i][j] == 0;
     }
 
-    fun vrstaPravilo1() : List<Triple<Int, Int, Boolean>> {
+    fun vrstaPravilo1() : List<Triple<Int, Int, Int>> {
 
-        val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+        val ret_val : MutableList<Triple<Int, Int, Int>> = emptyList<Triple<Int, Int, Int>>().toMutableList()
 
         for (i in 1..n) {
-            val listaL : Array<Triple<Int, Int, Boolean>> = Array(m) {j -> Triple(i-1, j, false)}
-            val listaD : Array<Triple<Int, Int, Boolean>> = Array(m) {j -> Triple(i-1, j, false)};
+            val listaL : Array<Triple<Int, Int, Int>> = Array(m) {j -> Triple(i-1, j, -1)}
+            val listaD : Array<Triple<Int, Int, Int>> = Array(m) {j -> Triple(i-1, j, -1)};
             var currentLeft = 0;
             var currentRight = m-1;
             var currentSum : Int = 0;
@@ -98,7 +98,7 @@ class Nonogram() {
                 currentSum += usloviVrsta!![i-1][j-1]
             }
 
-            currentSum += usloviVrsta!![i-1].size;
+            currentSum += usloviVrsta!![i-1].size-1;
 
             var difference = m - currentSum;
 
@@ -107,14 +107,14 @@ class Nonogram() {
                 if(difference < usloviVrsta!![i-1][j-1]) {
 
                     for (k in 1..usloviVrsta!![i - 1][j - 1]) {
-                        listaL[currentLeft + k - 1] = Triple(i - 1, currentLeft + k - 1, true);
+                        listaL[currentLeft + k - 1] = Triple(i - 1, currentLeft + k - 1,j);
                     }
                 }
 
                 if(difference < usloviVrsta!![i-1][usloviVrsta!![i-1].size - j]) {
 
                     for (k in 1..usloviVrsta!![i - 1][usloviVrsta!![i - 1].size - j]) {
-                        listaD[currentRight - k + 1] = Triple(i - 1, currentRight - k + 1, true);
+                        listaD[currentRight - k + 1] = Triple(i - 1, currentRight - k + 1, usloviVrsta!![i-1].size - j + 1);
                     }
                 }
 
@@ -127,13 +127,13 @@ class Nonogram() {
         return ret_val;
     }
 
-    fun kolonaPravilo1() : List<Triple<Int, Int, Boolean>> {
+    fun kolonaPravilo1() : List<Triple<Int, Int, Int>> {
 
-        val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+        val ret_val : MutableList<Triple<Int, Int, Int>> = emptyList<Triple<Int, Int, Int>>().toMutableList()
 
         for (i in 1..m) {
-            val listaL : Array<Triple<Int, Int, Boolean>> = Array(n) {j -> Triple(i-1, j, false)}
-            val listaD : Array<Triple<Int, Int, Boolean>> = Array(n) {j -> Triple(i-1, j, false)};
+            val listaL : Array<Triple<Int, Int, Int>> = Array(n) {j -> Triple(i-1, j, -1)}
+            val listaD : Array<Triple<Int, Int, Int>> = Array(n) {j -> Triple(i-1, j, -1)};
             var currentTop = 0;
             var currentBottom = n-1;
             var currentSum : Int = 0;
@@ -142,7 +142,7 @@ class Nonogram() {
                 currentSum += usloviKolona!![i-1][j-1]
             }
 
-            currentSum += usloviKolona!![i-1].size;
+            currentSum += usloviKolona!![i-1].size-1;
 
             val difference = n - currentSum;
 
@@ -151,14 +151,14 @@ class Nonogram() {
                 if(difference < usloviKolona!![i-1][j-1]) {
 
                     for (k in 1..usloviKolona!![i - 1][j - 1]) {
-                        listaL[currentTop + k - 1] = Triple(currentTop + k - 1, i-1,true);
+                        listaL[currentTop + k - 1] = Triple(currentTop + k - 1, i-1,j);
                     }
                 }
 
                 if(difference < usloviKolona!![i-1][usloviKolona!![i-1].size - j]) {
 
                     for (k in 1..usloviKolona!![i - 1][usloviKolona!![i - 1].size - j]) {
-                        listaD[currentBottom - k + 1] = Triple(currentBottom - k + 1, i-1,true);
+                        listaD[currentBottom - k + 1] = Triple(currentBottom - k + 1, i-1,usloviKolona!![i - 1].size - j+1);
                     }
                 }
 
@@ -206,12 +206,21 @@ class Nonogram() {
         for(k in 1..l) {
             var d : Int = usloviVrsta!![i][k-1]
             var cnt : Int = 0
+            var ok : Boolean = false
             for(j in 0..(d-2)) {
                 pls[j][k] = false
                 if(nonogram!![i][j]==0) cnt++
             }
             for(j in (d-1)..(m-1)) {
                 if(nonogram!![i][j]==0) cnt++
+
+                if(k!=1 && j>d) {
+                    var lp: Int = j-d-1
+                    if(nonogram!![i][lp] == 1) {
+                        ok = false
+                    }
+                    ok = ok || pls[lp][k-1]
+                }
 
                 if(cnt==0) {
                     if(j==d-1) {
@@ -222,14 +231,11 @@ class Nonogram() {
                             pls[j][k] = pls[j-d][0]
                         }
                         else {
-                            var lp: Int = j-d-1
-                            pls[j][k] = false
-                            if(lp>=0) {
-                                for(iit in 0..lp) {
-                                    var it : Int = lp-iit
-                                    if(pls[it][k-1]) pls[j][k]=true
-                                    if(nonogram!![i][it]==1) break
-                                }
+                            if(nonogram!![i][j-d] == 1) {
+                                pls[j][k] = false
+                            }
+                            else {
+                                pls[j][k] = ok
                             }
                         }
                     }
@@ -271,12 +277,21 @@ class Nonogram() {
         for(k in 1..l) {
             var d : Int = usloviKolona!![j][k-1]
             var cnt : Int = 0
+            var ok : Boolean = false
             for(i in 0..(d-2)) {
                 pls[i][k] = false
                 if(nonogram!![i][j]==0) cnt++
             }
             for(i in (d-1)..(m-1)) {
                 if(nonogram!![i][j]==0) cnt++
+
+                if(k!=1 && i>d) {
+                    var lp: Int = i-d-1
+                    if(nonogram!![lp][j] == 1) {
+                        ok = false
+                    }
+                    ok = ok || pls[lp][k-1]
+                }
 
                 if(cnt==0) {
                     if(i==d-1) {
@@ -287,14 +302,11 @@ class Nonogram() {
                             pls[i][k] = pls[i-d][0]
                         }
                         else {
-                            var lp: Int = i-d-1
-                            pls[i][k]=false
-                            if(lp>=0) {
-                                for(iit in 0..lp) {
-                                    var it : Int = lp-iit
-                                    if(pls[it][k-1]) pls[i][k]=true
-                                    if(nonogram!![it][j]==1) break
-                                }
+                            if(nonogram!![i-d][j] == 1) {
+                                pls[i][k] = false
+                            }
+                            else {
+                                pls[i][k] = ok
                             }
                         }
                     }
@@ -356,19 +368,24 @@ class Nonogram() {
     }
 
     fun solve(): Boolean {
-        return recSolve(0,0)
 
-        /*val listaPopunjenihPrekoPravila = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+        val listaPopunjenihPrekoPravila = emptyList<Triple<Int, Int, Int>>().toMutableList()
 
         listaPopunjenihPrekoPravila.addAll(this.vrstaPravilo1())
         listaPopunjenihPrekoPravila.addAll(this.kolonaPravilo1())
 
         for (x in listaPopunjenihPrekoPravila) {
-            if (x.third)
+            if (x.third != -1)
                 this.setNonogram(x.first, x.second, 1)
-        }*/
+        }
+        for(k in 0..(n-1)) {
+            if(!isRowPlausible(k)) return false
+        }
+        for(k in 0..(m-1)) {
+            if(!isColumnPlausible(k)) return false
+        }
 
-
+        return recSolve(0,0)
     }
 
     companion object {

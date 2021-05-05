@@ -2,10 +2,10 @@ package Model
 
 // ovde se nalaze neke pomocne funkcije
 
-fun intersect(lista1 : Array<Triple<Int, Int, Boolean>>, lista2: Array<Triple<Int, Int, Boolean>>, duzina : Int): List<Triple<Int, Int, Boolean>> {
+fun intersect(lista1 : Array<Triple<Int, Int, Int>>, lista2: Array<Triple<Int, Int, Int>>, duzina : Int): List<Triple<Int, Int, Int>> {
     if(lista1.size < duzina || lista2.size < duzina) return emptyList();
 
-    val ret_val : MutableList<Triple<Int, Int, Boolean>> = emptyList<Triple<Int, Int, Boolean>>().toMutableList();
+    val ret_val : MutableList<Triple<Int, Int, Int>> = emptyList<Triple<Int, Int, Int>>().toMutableList();
 
     for (i in 1..duzina) {
         if (lista1[i-1].equals(lista2[i-1]))
