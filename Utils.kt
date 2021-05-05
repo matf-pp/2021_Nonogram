@@ -14,23 +14,27 @@ fun intersect(lista1 : Array<Triple<Int, Int, Boolean>>, lista2: Array<Triple<In
     return ret_val;
 }
 
+fun arrayToRegex(niz: Array<Int>): String {
+    var s: String = "0*"
 
-fun extremePoints(leftExtreme: Int, rightExtreme: Int, filledPoint: Int, ruleLength: Int) : List<Int> {
-    val ret_val = emptyList<Int>().toMutableList()
-
-    if(leftExtreme >= filledPoint || filledPoint >= rightExtreme) return ret_val
-
-    if(filledPoint - leftExtreme < ruleLength) {
-        for(j in 1..ruleLength - (filledPoint - leftExtreme)) {
-            ret_val.add(j+filledPoint)
-        }
+    for(i in 0..niz.size-1) {
+        if(i < niz.size-1)
+            s = s.plus("1").plus("{").plus(niz[i]).plus("}").plus("0+")
+        else
+            s = s.plus("1").plus("{").plus(niz[i]).plus("}")
     }
 
-    if(rightExtreme - filledPoint < ruleLength) {
-        for(j in 1..ruleLength - (rightExtreme - filledPoint)) {
-            ret_val.add(filledPoint-j)
-        }
-    }
+    s = s.plus("0*")
 
-    return ret_val
+    return s
+}
+
+fun arrayToString(niz: Array<Int>): String {
+    var s = ""
+    for(x in niz)
+        when{
+            x == 1 -> s = s.plus("1")
+            x == 0 -> s = s.plus("0")
+        }
+    return s
 }
