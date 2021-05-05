@@ -321,15 +321,27 @@ class Nonogram() {
     }
 
     fun recSolve(i: Int,j: Int) : Boolean {
-        for(k in 0..(n-1)) {
+
+        //No rules:
+        if(j==0) {
+            if(i!=0) {
+                if(!isRowPlausible(i-1) || !isColumnPlausible(m-1)) return false
+            }
+        }
+        else {
+            if(!isRowPlausible(i) || !isColumnPlausible(j-1)) return false
+        }
+
+        //With rules:
+        /*for(k in 0..(n-1)) {
             if(!isRowPlausible(k)) return false
         }
         for(k in 0..(m-1)) {
             if(!isColumnPlausible(k)) return false
-        }
+        }*/
         /*println(i.toString() + " " + j.toString())
         println(this.toString())*/
-        if(i>n) return true
+        if(i>=n) return true
         setNonogram(i,j,0)
         var ok : Boolean = false
         if(j==m-1) ok=recSolve(i+1,0)
@@ -365,7 +377,7 @@ class Nonogram() {
             var m = n
             val dtsz : Int = PictureGenerator.getPictureCount()
             var ind = Random.nextInt(dtsz)
-            return PictureGenerator.generateNonogramFromPicture(ind,20,20)
+            return PictureGenerator.generateNonogramFromPicture(ind,n*5,m*5)
 
             //return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
         }
