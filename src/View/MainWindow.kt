@@ -28,6 +28,10 @@ class MainWindow : Application() {
     private var pane: Pane = Pane()
     private var menuBox: VBox = VBox()
     private var menuBar = MenuBar()
+    private var wh: Double = 0.0
+    private var he: Double = 0.0
+    private var solveButton: Button = Button("Reši nonogram")
+    private lateinit var stg: Stage
 
 
     override fun start(stage: Stage) {
@@ -72,14 +76,25 @@ class MainWindow : Application() {
 
         menuBar.getMenus().add(menu1)
 
-        pane.children.add(menuBar)
+        solveButton.onAction = EventHandler { e: ActionEvent? ->
+            current_nonogram.solve()
+            this.refreshNonogram()
+        }
 
-        val scene=Scene(pane,1200.0,750.0)
+        solveButton.layoutX = wh/2-20.0
+        solveButton.layoutY = he+50.0
+
+
+        pane.children.add(menuBar)
+        pane.children.add(solveButton)
+
+        var scene=Scene(pane,wh+100.0,he+130.0)
         stage.scene = scene
-        stage.setWidth(1200.00);
-        stage.setHeight(750.00);
+        stage.setWidth(wh+100.0);
+        stage.setHeight(he+130.0);
         stage.setResizable(false);
         stage.setTitle("Nonogrami");
+        stg=stage
         stage.show()
     }
 
@@ -95,15 +110,25 @@ class MainWindow : Application() {
     fun refreshNonogram() {
         pane.children.clear()
         show_nonogram(pane,current_nonogram)
+        solveButton.layoutX = wh/2-20.0
+        solveButton.layoutY = he+50.0
+
+
         pane.children.add(menuBar)
+        pane.children.add(solveButton)
+        stg.setWidth(wh+100.0);
+        stg.setHeight(he+130.0);
+        stg.setResizable(false);
+        stg.setTitle("Nonogrami");
+        stg.show()
     }
 
     fun show_nonogram(pane: Pane, nonogram: Nonogram) {
         val n: Int = nonogram.getN()
         val m: Int = nonogram.getM()
 
-        val usloviVrsta: Array<Array<Pair<Int, Boolean>>>? = nonogram.getUsloviVrsta()
-        val usloviKolona: Array<Array<Pair<Int, Boolean>>>? = nonogram.getUsloviKolona()
+        val usloviVrsta: Array<Array<Int>>? = nonogram.getUsloviVrsta()
+        val usloviKolona: Array<Array<Int>>? = nonogram.getUsloviKolona()
         val polja: Array<Array<Int>>? = nonogram.getNonogram()
 
         var wdh: Int = 0
@@ -136,6 +161,8 @@ class MainWindow : Application() {
             hei = max(hei,usloviKolona!![i].size)
         }
 
+        wh = (wdh+m)*(size+0.5)
+        he = (hei+n)*(size+0.5)
 
         val gridpane = GridPane()
 
@@ -157,7 +184,7 @@ class MainWindow : Application() {
         }
         for(i in 0..(n-1)) {
             for(j in 0..(usloviVrsta!![i].size-1)) {
-                val t: Label = Label(usloviVrsta!![i][j].first.toString())
+                val t: Label = Label(usloviVrsta!![i][j].toString())
                 t.font = Font(size/2)
                 t.minWidth = size
                 t.minHeight = size
@@ -171,7 +198,7 @@ class MainWindow : Application() {
 
         for(i in 0..(m-1)) {
             for(j in 0..(usloviKolona!![i].size-1)) {
-                val t: Label = Label(usloviKolona!![i][j].first.toString())
+                val t: Label = Label(usloviKolona!![i][j].toString())
                 t.font = Font(size/2)
                 t.minWidth = size
                 t.minHeight = size

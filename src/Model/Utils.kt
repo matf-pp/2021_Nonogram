@@ -13,3 +13,28 @@ fun intersect(lista1 : Array<Triple<Int, Int, Boolean>>, lista2: Array<Triple<In
     }
     return ret_val;
 }
+
+fun arrayToRegex(niz: Array<Int>): String {
+    var s: String = "0*"
+
+    for(i in 0..niz.size-1) {
+        if(i < niz.size-1)
+            s = s.plus("1").plus("{").plus(niz[i]).plus("}").plus("0+")
+        else
+            s = s.plus("1").plus("{").plus(niz[i]).plus("}")
+    }
+
+    s = s.plus("0*")
+
+    return s
+}
+
+fun arrayToString(niz: Array<Int>): String {
+    var s = ""
+    for(x in niz)
+        when{
+            x == 1 -> s = s.plus("1")
+            x == 0 -> s = s.plus("0")
+        }
+    return s
+}
