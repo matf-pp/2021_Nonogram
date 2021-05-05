@@ -3,7 +3,7 @@ Generisanje nonograma na osnovu date slike i rešavanje nonograma kojeg korisnik
 ## Jezici i tehnologije
 Korišćen je jezik Kotlin i JavaFX za GUI. Projekat je razvijan u IntelliJ IDEA razvojnom okruženju
 ## Kompilacija i pokretanje
-Neophodno je imati JavaFX biblioteke skinute.
+Neophodno je imati JavaFX biblioteke.
 
 Komanda za kompilaciju iz src foldera:
 ```
@@ -15,7 +15,7 @@ Komanda za pokretanje iz direktorijuma u kojem je i izvršni fajl:
 java --module-path path\lib --add-modules=javafx.controls -jar Nonogrami.jar
 ```
 
-Gde "path" označava direktorijum gde su JavaFX biblioteke
+Gde "path" označava direktorijum gde su JavaFX biblioteke.
 
 Za korišćenje funkcija koje koriste bazu slika, neophodno je imati "images" poddirektorijum u direktorijumu u kojem je izvršni fajl "Nonogrami.jar"
 ## Autori
