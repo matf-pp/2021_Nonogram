@@ -193,12 +193,160 @@ class Nonogram() {
         return true
     }
 
+    fun isRowPlausible(i: Int) : Boolean {
+        var l : Int = usloviVrsta!![i].size
+        var pls : Array<Array<Boolean>> = Array(m){Array(l+1){false}}
 
+        var oks : Boolean = true
+        for(j in 0..(m-1)) {
+            if(nonogram!![i][j]==1) oks=false
+            pls[j][0]=oks
+        }
+
+        for(k in 1..l) {
+            var d : Int = usloviVrsta!![i][k-1]
+            var cnt : Int = 0
+            for(j in 0..(d-2)) {
+                pls[j][k] = false
+                if(nonogram!![i][j]==0) cnt++
+            }
+            for(j in (d-1)..(m-1)) {
+                if(nonogram!![i][j]==0) cnt++
+
+                if(cnt==0) {
+                    if(j==d-1) {
+                        pls[j][k] = k==1
+                    }
+                    else {
+                        if(k==1) {
+                            pls[j][k] = pls[j-d][0]
+                        }
+                        else {
+                            var lp: Int = j-d-1
+                            pls[j][k] = false
+                            if(lp>=0) {
+                                for(iit in 0..lp) {
+                                    var it : Int = lp-iit
+                                    if(pls[it][k-1]) pls[j][k]=true
+                                    if(nonogram!![i][it]==1) break
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    pls[j][k]=false
+                }
+
+                if(nonogram!![i][j+1-d]==0) cnt--
+            }
+            /*println("i: " + i.toString() + ", k: " + k.toString() + ", l: " + l.toString())
+            for(j in 0..(m-1)) {
+                println(pls[j][k].toString())
+            }*/
+        }
+
+        for(ij in 1..m) {
+            var j : Int = m-ij
+            if(pls[j][l]) {
+                return true
+            }
+            if(nonogram!![i][j]==1) {
+                return false
+            }
+        }
+        return false
+    }
+
+    fun isColumnPlausible(j: Int) : Boolean {
+        var l : Int = usloviKolona!![j].size
+        var pls : Array<Array<Boolean>> = Array(n){Array(l+1){false}}
+
+        var oks : Boolean = true
+        for(i in 0..(n-1)) {
+            if(nonogram!![i][j]==1) oks=false
+            pls[i][0]=oks
+        }
+
+        for(k in 1..l) {
+            var d : Int = usloviKolona!![j][k-1]
+            var cnt : Int = 0
+            for(i in 0..(d-2)) {
+                pls[i][k] = false
+                if(nonogram!![i][j]==0) cnt++
+            }
+            for(i in (d-1)..(m-1)) {
+                if(nonogram!![i][j]==0) cnt++
+
+                if(cnt==0) {
+                    if(i==d-1) {
+                        pls[i][k] = k==1
+                    }
+                    else {
+                        if(k==1) {
+                            pls[i][k] = pls[i-d][0]
+                        }
+                        else {
+                            var lp: Int = i-d-1
+                            pls[i][k]=false
+                            if(lp>=0) {
+                                for(iit in 0..lp) {
+                                    var it : Int = lp-iit
+                                    if(pls[it][k-1]) pls[i][k]=true
+                                    if(nonogram!![it][j]==1) break
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    pls[i][k]=false
+                }
+
+                if(nonogram!![i+1-d][j]==0) cnt--
+            }
+
+        }
+
+        for(ii in 1..n) {
+            var i : Int = n-ii
+            if(pls[i][l]) {
+                return true
+            }
+            if(nonogram!![i][j]==1) {
+                return false
+            }
+        }
+        return false
+    }
+
+    fun recSolve(i: Int,j: Int) : Boolean {
+        for(k in 0..(n-1)) {
+            if(!isRowPlausible(k)) return false
+        }
+        for(k in 0..(m-1)) {
+            if(!isColumnPlausible(k)) return false
+        }
+        /*println(i.toString() + " " + j.toString())
+        println(this.toString())*/
+        if(i>n) return true
+        setNonogram(i,j,0)
+        var ok : Boolean = false
+        if(j==m-1) ok=recSolve(i+1,0)
+        else ok=recSolve(i,j+1)
+        if(ok) return true
+        setNonogram(i,j,1)
+        if(j==m-1) ok=recSolve(i+1,0)
+        else ok=recSolve(i,j+1)
+        if(ok) return true
+        setNonogram(i,j,-1)
+        return false
+    }
 
     fun solve(): Boolean {
-        var isSolved = false
+        return recSolve(0,0)
 
-        val listaPopunjenihPrekoPravila = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
+        /*val listaPopunjenihPrekoPravila = emptyList<Triple<Int, Int, Boolean>>().toMutableList()
 
         listaPopunjenihPrekoPravila.addAll(this.vrstaPravilo1())
         listaPopunjenihPrekoPravila.addAll(this.kolonaPravilo1())
@@ -206,77 +354,9 @@ class Nonogram() {
         for (x in listaPopunjenihPrekoPravila) {
             if (x.third)
                 this.setNonogram(x.first, x.second, 1)
-        }
+        }*/
 
-        // pravimo nizove regularnih izraza
-        // resenje je dobro ako svaka vrsta i kolona pripadaju odgovarajucem regularnom jeziku
 
-        val vrstaRegex = Array(n) { it -> Regex(arrayToRegex(usloviVrsta!![it])) }
-        val kolonaRegex = Array(m) { it -> Regex(arrayToRegex(usloviKolona!![it])) }
-
-        // moramo formirati neku vrstu steka gde cemo cuvati polja koja smo popunili
-
-        val stack = ArrayDeque<Triple<Int, Int, Boolean>>()
-        var top: Triple<Int, Int, Boolean>
-        var match: MatchResult?
-        var tmpString: String
-        var pretpostavka: Pair<Int, Int>?
-
-        // errorFlag ce da oznacava da li imamo gresku
-
-        var errorFlag = false
-
-        while (!isSolved) {
-            if(errorFlag) {
-                // u tom slucaju je nonogram pogresan
-                if(stack.isEmpty()) break
-                else {
-                    top = stack.last()
-                    stack.removeLast()
-                    if(top.third) {
-                        stack.addLast(Triple(top.first, top.second, false))
-                        this.setNonogram(top.first, top.second, 0)
-                        errorFlag = false
-                    } else {
-                        this.setNonogram(top.first, top.second, -1)
-                    }
-                }
-            } else {
-                // proveravamo vrste
-                for(i in 0..n-1)
-                    if(this.isRowFilled(i)) {
-                        tmpString = arrayToString(nonogram!![i])
-//                        println("Vrsta: ".plus(i).plus(" - ").plus(tmpString))
-                        match = vrstaRegex[i].matchEntire(tmpString)
-                        if(match == null) {
-                            errorFlag = true
-                            break
-                        }
-                    }
-                // sada proveravamo kolone
-                for(i in 0..m-1) {
-                    if(this.isColumnFilled(i)) {
-                        tmpString = ""
-                        for(j in 0..n-1)
-                            tmpString = tmpString.plus(nonogram!![j][i])
-                        match = kolonaRegex[i].matchEntire(tmpString)
-                        if(match == null) {
-                            errorFlag = true
-                            break
-                        }
-                    }
-                }
-                if(!errorFlag) {
-                    pretpostavka = this.supposeNext()
-                    if(pretpostavka == null) isSolved = true
-                    else {
-                        stack.addLast(Triple(pretpostavka.first, pretpostavka.second, true))
-                        this.setNonogram(pretpostavka.first, pretpostavka.second, 1)
-                    }
-                }
-            }
-        }
-        return isSolved
     }
 
     companion object {
@@ -285,7 +365,7 @@ class Nonogram() {
             var m = n
             val dtsz : Int = PictureGenerator.getPictureCount()
             var ind = Random.nextInt(dtsz)
-            return PictureGenerator.generateNonogramFromPicture(ind,n*5,m*5)
+            return PictureGenerator.generateNonogramFromPicture(ind,20,20)
 
             //return Nonogram(5,5, arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)),arrayOf(arrayOf(1),arrayOf(3),arrayOf(5),arrayOf(3),arrayOf(1)))
         }
