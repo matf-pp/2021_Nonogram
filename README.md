@@ -20,4 +20,5 @@ Gde "path" označava direktorijum gde su JavaFX biblioteke.
 Za korišćenje funkcija koje koriste bazu slika, neophodno je imati "images" poddirektorijum u direktorijumu u kojem je izvršni fajl "Nonogrami.jar"
 ## Autori
 Uroš Ševkušić (Mail: mr18104@alas.matf.bg.ac.rs)
+
 Aleksa Milisavljević (Mail: mr18003@alas.matf.bg.ac.rs)
