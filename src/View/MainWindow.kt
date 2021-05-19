@@ -96,7 +96,7 @@ class MainWindow : Application() {
             if(selectedFile!=null && selectedFile.isFile && (selectedFile.name.endsWith(".jpg") ||
                         selectedFile.name.endsWith(".jpeg") ||
                         selectedFile.name.endsWith(".png"))) {
-                current_nonogram = Model.PictureGenerator.generateNonogramFromGivenPicture(selectedFile.toPath().toString(),getDim(),getDim(),getFill())
+                current_nonogram = Model.PictureGenerator.generateNonogramFromGivenPicture(selectedFile.toPath().toString(),getDim(),getFill())
                 this.refreshNonogram()
             }
         }
@@ -352,10 +352,8 @@ class MainWindow : Application() {
         pane.children.add(gridpane)
     }
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            launch(MainWindow::class.java)
-        }
-    }
+}
+
+fun main(args: Array<String>) {
+    Application.launch(MainWindow::class.java)
 }

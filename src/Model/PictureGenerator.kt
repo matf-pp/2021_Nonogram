@@ -6,6 +6,7 @@ import java.io.File
 import javax.imageio.ImageIO
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.random.Random
 
 class PictureGenerator {
     companion object {
@@ -103,10 +104,14 @@ class PictureGenerator {
 
         }
 
-        fun generateNonogramFromGivenPicture(pth: String,n: Int,m: Int, fill : Boolean): Nonogram {
+        fun generateNonogramFromGivenPicture(pth: String,sz: Int, fill : Boolean): Nonogram {
             var imageFile : File = File(pth)
-
-
+            var n: Int = (Random.nextInt(4) + 1) * 5
+            var m = n
+            if(sz != 0 ) {
+                n = sz
+                m = sz
+            }
             val image : BufferedImage = ImageIO.read(imageFile)
             val w : Int = image.width
             val h : Int = image.height
