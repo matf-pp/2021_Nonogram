@@ -12,6 +12,22 @@ Jedan pristup je da se koriste pravila za rešavanje koja direktno slede iz list
 
 Osim upotrebe gorepomenutih pravila, postoje i drugi načini za rešavanje poput genetskih algoritama (https://github.com/worm333/nonogram), backtracking-a (https://lihautan.com/solving-nonogram-with-code/), rešavanje preko regularnih izraza (https://liorsinai.github.io/coding/2020/10/29/finite-state-machines.html), DFS solvera (https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2018-2019/Makalah/Makalah-Stima-2019-001.pdf) i drugih. Često se koriste i hibridni solveri koji koriste više tehnika za rešavanje nonograma. Jedan od takvih solvera može se naći na sledećem linku: https://github.com/seansxiao/nonogram-solver.
 
+## Primer upotrebe aplikacije
+Primer praznog (podrazumevanog) nonograma:
+![prazan_nonogram](https://user-images.githubusercontent.com/27553333/118834680-ad901800-b8c2-11eb-8765-952081ba182a.png)
+Korisnik može da rešava nonogram:
+![parcijalni_nonogram](https://user-images.githubusercontent.com/27553333/118834803-c1d41500-b8c2-11eb-9a09-b603d2512a29.png)
+Klikom na dugme "Reši nonogram" rešavač započinje rešavanje nonograma:
+![resen_nonogram](https://user-images.githubusercontent.com/27553333/118834967-e16b3d80-b8c2-11eb-88e5-1ca58c3176f1.png)
+Moguće je učitavati i nonograme iz slika:
+![ucitavanje_iz_slike](https://user-images.githubusercontent.com/27553333/118835034-edef9600-b8c2-11eb-9dc9-f97a4146b161.png)
+Nakon čega se po zadatim parametrima generiše nonogram puzla:
+![generisana_slika](https://user-images.githubusercontent.com/27553333/118835154-06f84700-b8c3-11eb-9779-c2c43e1518dc.png)
+Rešenje gornje puzle:
+![resena_generisana_puzla](https://user-images.githubusercontent.com/27553333/118835245-18415380-b8c3-11eb-9fc2-fb3fd974b4bf.png)
+Za detaljnije informacije o upotrebi aplikacije, referisati na meni "Pomoć":
+![pomoc](https://user-images.githubusercontent.com/27553333/118835353-327b3180-b8c3-11eb-8a0f-fd4db403dade.png)
+
 ## Jezici i tehnologije
 Korišćen je jezik Kotlin i JavaFX za GUI. Projekat je razvijan u IntelliJ IDEA razvojnom okruženju(https://www.jetbrains.com/idea/).
 ## Kompilacija i pokretanje
