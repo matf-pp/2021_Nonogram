@@ -13,7 +13,6 @@ Jedan pristup je da se koriste pravila za rešavanje koja direktno slede iz list
 Osim upotrebe gorepomenutih pravila, postoje i drugi načini za rešavanje poput genetskih algoritama (https://github.com/worm333/nonogram), backtracking-a (https://lihautan.com/solving-nonogram-with-code/), rešavanje preko regularnih izraza (https://liorsinai.github.io/coding/2020/10/29/finite-state-machines.html), DFS solvera (https://informatika.stei.itb.ac.id/~rinaldi.munir/Stmik/2018-2019/Makalah/Makalah-Stima-2019-001.pdf) i drugih. Često se koriste i hibridni solveri koji koriste više tehnika za rešavanje nonograma. Jedan od takvih solvera može se naći na sledećem linku: https://github.com/seansxiao/nonogram-solver.
 
 ## Primer upotrebe aplikacije
-
 Primer praznog (podrazumevanog) nonograma:
 
 ![prazan_nonogram](https://user-images.githubusercontent.com/27553333/118834680-ad901800-b8c2-11eb-8765-952081ba182a.png)
@@ -41,6 +40,14 @@ Rešenje generisane puzle:
 Za detaljnije informacije o upotrebi aplikacije, pogledati meni "Pomoć":
 
 ![pomoc](https://user-images.githubusercontent.com/27553333/118835353-327b3180-b8c3-11eb-8a0f-fd4db403dade.png)
+
+## Nadograđivanje projekta
+
+Moguće je nadograditi projekat u smislu optimizovanja rešavača, čime bi se omogućilo rešavanje nonograma većih dimenzija. Opcije za to bi bilo sledeće:
+  * Dodavanje drugih rešavača/pravila, koja bi delimično rešila nonogram, u funkciji "solve" iz fajla "Nonogram.kt" neposredno pre poziva funkcije "rec_solve", koja predstavlja backtrack rešavač zasnovan na nekim pravilima integrsanim u dinamičko programiranje.
+  * Dodavanje još pravila u funkciju "rec_solve" iz fajla "Nonogram.kt", koji koristi neka od pravila integrisana u dinamičko programiranje. Ova opcija je tehnički zahtevnija u smislu da je neophodno "čistiti" informacije u slučaju nepovoljnog ishoda po povratku iz backtracking-a.
+
+Moguće je dopuniti postojeću bazu slika ubacivanjem drugih slika u nju. Ovo je moguće raditi "ručno" ili upotrebom opcije "Ubaci sliku u bazu" u meniju "Fajlovi".
 
 ## Jezici i tehnologije
 Korišćen je jezik Kotlin i JavaFX za GUI. Projekat je razvijan u IntelliJ IDEA razvojnom okruženju(https://www.jetbrains.com/idea/).
