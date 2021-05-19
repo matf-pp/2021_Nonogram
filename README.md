@@ -38,7 +38,7 @@ Rešenje generisane puzle:
 
 ![resena_generisana_puzla](https://user-images.githubusercontent.com/27553333/118835245-18415380-b8c3-11eb-9fc2-fb3fd974b4bf.png)
 
-Za detaljnije informacije o upotrebi aplikacije, referisati na meni "Pomoć":
+Za detaljnije informacije o upotrebi aplikacije, pogledati meni "Pomoć":
 
 ![pomoc](https://user-images.githubusercontent.com/27553333/118835353-327b3180-b8c3-11eb-8a0f-fd4db403dade.png)
 
