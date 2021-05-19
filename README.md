@@ -1,7 +1,7 @@
 # 2021_Nonogram
 Generisanje nonograma na osnovu date slike i rešavanje nonograma kojeg korisnik zada.
 ## O nonogramima
-Nonogram je logička igra koja se sastoji od jedne matrice dimenzija $n$ i $m$, i dva niza dužine $n$ i $m$ čiji su elementi liste celih brojeva koje određuju uslove na odgovarajućoj vrsti ili koloni. Polja matrice se, na osnovu datih uslova i odgovarajućih pravila, popunjavaju crnom ili belom bojom. Kada se nonogram uspešno popuni, dobija se određena slika na matrici. Lista uslova za datu vrstu ili kolonu govori da moraju onim redom (s leva na desno za vrste ili od gore ka dole za kolone) kojim idu brojevi u listi da se nađu u toj vrsti ili koloni blokovi crnih piksela tih dužina, s tim što između svaka dva bloka mora postojati bar jedno polje razmaka.
+Nonogram je logička igra koja se sastoji od jedne matrice dimenzija n i m, i dva niza dužine n i m čiji su elementi liste celih brojeva koje određuju uslove na odgovarajućoj vrsti ili koloni. Polja matrice se, na osnovu datih uslova i odgovarajućih pravila, popunjavaju crnom ili belom bojom. Kada se nonogram uspešno popuni, dobija se određena slika na matrici. Lista uslova za datu vrstu ili kolonu govori da moraju onim redom (s leva na desno za vrste ili od gore ka dole za kolone) kojim idu brojevi u listi da se nađu u toj vrsti ili koloni blokovi crnih piksela tih dužina, s tim što između svaka dva bloka mora postojati bar jedno polje razmaka.
 
 Osim crno-belih nonograma, postoje i nonogrami u boji, s tim što su pravila malo drugačija s obzirom na to da postoji više boja. U tom slučaju, razmak mora postojati samo između blokova iste boje, a bela boja ne mora nužno označavati prazno polje, već to može biti bilo koja boja različita od onih kojima se popunjava nonogram.
 
