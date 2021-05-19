@@ -54,9 +54,9 @@ Korišćen je jezik Kotlin i JavaFX za GUI. Projekat je razvijan u IntelliJ IDEA
 ## Kompilacija i pokretanje
 Neophodno je imati JavaFX biblioteke(https://gluonhq.com/products/javafx/) i Kotlin kompajler(https://github.com/JetBrains/kotlin/releases/tag/v1.5.0).
 
-Komanda za kompilaciju iz src foldera:
+Komanda za kompilaciju iz glavnog foldera:
 ```
-kotlinc -cp "path\lib\javafx.base.jar;path\lib\javafx.controls.jar;path\lib\javafx.fxml.jar;path\lib\javafx.graphics.jar"  View\MainWindow.kt Model\Utils.kt Model\TextGenerator.kt Model\PictureGenerator.kt Model\Nonogram.kt Controller\NonogramFieldClick.kt -include-runtime -d Nonogrami.jar
+kotlinc -cp "path\lib\javafx.base.jar;path\lib\javafx.controls.jar;path\lib\javafx.fxml.jar;path\lib\javafx.graphics.jar"  src\View\MainWindow.kt src\Model\Utils.kt src\Model\TextGenerator.kt src\Model\PictureGenerator.kt src\Model\Nonogram.kt src\Controller\NonogramFieldClick.kt -include-runtime -d Nonogrami.jar
 ```
 
 Komanda za pokretanje iz direktorijuma u kojem je i izvršni fajl:
