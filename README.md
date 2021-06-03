@@ -27,15 +27,15 @@ Klikom na dugme "Reši nonogram" rešavač započinje rešavanje nonograma:
 
 Moguće je učitavati i nonograme iz slika:
 
-![ucitavanje_iz_slike](https://user-images.githubusercontent.com/27553333/118835034-edef9600-b8c2-11eb-9dc9-f97a4146b161.png)
+![ucitavanje_nonograma_iz_slike](https://user-images.githubusercontent.com/27553333/120628325-db4d9300-c464-11eb-9559-e8b55c982b6c.png)
 
 Nakon čega se po zadatim parametrima generiše nonogram puzla:
 
-![generisana_slika](https://user-images.githubusercontent.com/27553333/118835154-06f84700-b8c3-11eb-9779-c2c43e1518dc.png)
+![generisana_puzla](https://user-images.githubusercontent.com/27553333/120628341-de488380-c464-11eb-9c4a-829ee3dd2ec5.png)
 
 Rešenje generisane puzle:
 
-![resena_generisana_puzla](https://user-images.githubusercontent.com/27553333/118835245-18415380-b8c3-11eb-9fc2-fb3fd974b4bf.png)
+![resenje_generisane_puzle](https://user-images.githubusercontent.com/27553333/120628360-e3a5ce00-c464-11eb-8667-d0035edfc4e3.png)
 
 Za detaljnije informacije o upotrebi aplikacije, pogledati meni "Pomoć":
 
@@ -71,3 +71,5 @@ Za upotrebljavanje funkcija koje koriste bazu slika, neophodno je imati "images"
 Uroš Ševkušić (Mail: mr18104@alas.matf.bg.ac.rs)
 
 Aleksa Milisavljević (Mail: mr18003@alas.matf.bg.ac.rs)
+
+Slike iz direktorijuma images nisu naše i upotrebljene su samo zarad demonstracije rada programa.
